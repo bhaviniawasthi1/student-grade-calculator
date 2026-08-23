@@ -1,0 +1,11 @@
+{
+  "name": "gradebook",
+  "version": "1.0.0",
+  "description": "A premium, single-page marks-to-grade calculator - percentage, GPA, and letter grade from subject-wise or total marks.",
+  "private": true,
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "author": "Arya",
+  "license": "MIT"
+}

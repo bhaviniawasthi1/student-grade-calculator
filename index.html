@@ -1,0 +1,1112 @@
+<title>Gradebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --paper: #f7f4ee;
+    --paper-raised: #ffffff;
+    --ink: #201d18;
+    --ink-soft: #5c574c;
+    --ink-faint: #8c8574;
+    --line: #ddd6c4;
+    --line-soft: #eae5d7;
+    --accent: #b6862c;
+    --accent-ink: #6b4c14;
+    --accent-soft: #f1e2bd;
+    --indigo: #2e3552;
+    --indigo-soft: #e7e8f0;
+    --good: #3f7d52;
+    --good-soft: #e2efe3;
+    --warn: #a86a1f;
+    --warn-soft: #f5e8d3;
+    --bad: #a4423a;
+    --bad-soft: #f5e0dd;
+    --shadow: 220 20% 15%;
+    --focus: #6b4c14;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #17161c;
+      --paper-raised: #201f27;
+      --ink: #efece3;
+      --ink-soft: #b3ac9a;
+      --ink-faint: #78725f;
+      --line: #38364020;
+      --line: #3a3842;
+      --line-soft: #2b2a33;
+      --accent: #d9ad55;
+      --accent-ink: #f1d492;
+      --accent-soft: #3a3020;
+      --indigo: #a9adcf;
+      --indigo-soft: #262838;
+      --good: #7cbd8f;
+      --good-soft: #223226;
+      --warn: #d9a85a;
+      --warn-soft: #382c19;
+      --bad: #d98882;
+      --bad-soft: #3a2422;
+      --shadow: 240 30% 2%;
+      --focus: #f1d492;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #17161c;
+    --paper-raised: #201f27;
+    --ink: #efece3;
+    --ink-soft: #b3ac9a;
+    --ink-faint: #78725f;
+    --line: #3a3842;
+    --line-soft: #2b2a33;
+    --accent: #d9ad55;
+    --accent-ink: #f1d492;
+    --accent-soft: #3a3020;
+    --indigo: #a9adcf;
+    --indigo-soft: #262838;
+    --good: #7cbd8f;
+    --good-soft: #223226;
+    --warn: #d9a85a;
+    --warn-soft: #382c19;
+    --bad: #d98882;
+    --bad-soft: #3a2422;
+    --shadow: 240 30% 2%;
+    --focus: #f1d492;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Public Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 15.5px;
+    line-height:1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--accent-soft); color: var(--accent-ink); }
+
+  h1,h2,h3,.display{
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .num{ font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; font-variant-numeric: tabular-nums; }
+
+  a{ color: var(--accent-ink); }
+
+  button{ font-family: inherit; }
+
+  :focus-visible{
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* ============ SHELL ============ */
+  .page{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 40px) 40px;
+  }
+
+  header.masthead{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap: 24px;
+    padding-bottom: 22px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .masthead .brand{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+  }
+  .brand .mark{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width: 38px; height:38px;
+    border-radius: 9px;
+    background: var(--indigo);
+    color: var(--paper-raised);
+    font-family:"Fraunces", serif;
+    font-weight:600;
+    font-size: 18px;
+    flex: none;
+    transform: translateY(3px);
+  }
+  header.masthead h1{
+    font-size: clamp(24px, 3vw, 30px);
+    font-weight: 600;
+    margin: 0;
+  }
+  header.masthead .kicker{
+    display:block;
+    font-family:"Public Sans", sans-serif;
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  header.masthead .sub{
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    max-width: 34ch;
+    margin: 0;
+  }
+
+  /* ============ LAYOUT ============ */
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(0,1fr) 340px;
+    gap: 24px;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  .panel{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px hsl(var(--shadow) / 0.06), 0 8px 24px -14px hsl(var(--shadow) / 0.18);
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line-soft);
+    flex-wrap: wrap;
+  }
+  .panel-head h2{
+    font-size: 17px;
+    font-weight: 600;
+    margin:0;
+  }
+  .panel-body{ padding: 20px 22px 22px; }
+
+  /* ---- segmented control ---- */
+  .segmented{
+    display:inline-flex;
+    background: var(--line-soft);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .segmented button{
+    border:0;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 13px;
+    border-radius: 8px;
+    cursor:pointer;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+    white-space: nowrap;
+  }
+  .segmented button.active{
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 2px hsl(var(--shadow) / 0.15);
+  }
+  .segmented button:hover:not(.active){ color: var(--ink); }
+
+  /* ---- table mode ---- */
+  .same-mm-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 12px 14px;
+    background: var(--indigo-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .same-mm-row label.chk{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor:pointer;
+    user-select:none;
+  }
+  .same-mm-row input[type="checkbox"]{
+    width:16px; height:16px;
+    accent-color: var(--indigo);
+    cursor:pointer;
+  }
+  .same-mm-row .mm-global{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-left: auto;
+  }
+  .same-mm-row .mm-global label{
+    font-size:12.5px;
+    color: var(--ink-soft);
+  }
+  .same-mm-row input.mm-global-input{
+    width: 84px;
+  }
+
+  table.subjects{
+    width:100%;
+    border-collapse: collapse;
+  }
+  table.subjects thead th{
+    text-align:left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 700;
+    padding: 0 8px 8px;
+  }
+  table.subjects thead th.num-col{ text-align:right; }
+  table.subjects tbody tr{
+    border-top: 1px solid var(--line-soft);
+  }
+  table.subjects tbody td{
+    padding: 7px 8px;
+    vertical-align: middle;
+  }
+  table.subjects tbody tr:hover{ background: var(--line-soft); }
+  table.subjects .idx{
+    color: var(--ink-faint);
+    font-size: 12.5px;
+    width: 26px;
+    text-align:center;
+  }
+  table.subjects .row-pct{
+    width: 54px;
+    text-align:right;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    padding-right: 4px;
+  }
+  table.subjects .row-pct.bad{ color: var(--bad); }
+  table.subjects .del-cell{ width: 34px; text-align:center; }
+
+  input[type="text"], input[type="number"]{
+    width:100%;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input[type="number"]{
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    text-align:right;
+  }
+  input::placeholder{ color: var(--ink-faint); }
+  input:focus{
+    border-color: var(--accent-ink);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    outline: none;
+  }
+  input.error{
+    border-color: var(--bad);
+    background: var(--bad-soft);
+  }
+  input:disabled{
+    opacity: .55;
+    cursor:not-allowed;
+  }
+  td.name-cell input{ font-family: "Public Sans", sans-serif; text-align:left; }
+  td.mark-cell{ width: 100px; }
+  td.mm-cell{ width: 100px; }
+
+  .icon-btn{
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink-faint);
+    width: 28px; height:28px;
+    border-radius: 7px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition: background .15s ease, color .15s ease;
+  }
+  .icon-btn:hover{ background: var(--bad-soft); color: var(--bad); }
+  .icon-btn svg{ width:15px; height:15px; }
+
+  .table-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top: 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    border-radius: 9px;
+    padding: 9px 15px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor:pointer;
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    color: var(--ink);
+    transition: background .15s ease, border-color .15s ease, transform .05s ease;
+  }
+  .btn:hover{ background: var(--line-soft); }
+  .btn:active{ transform: translateY(1px); }
+  .btn-ghost{
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink-soft);
+  }
+  .btn-ghost:hover{ background: var(--line-soft); color: var(--ink); }
+  .btn-add{
+    border-color: var(--accent-ink);
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+  }
+  .btn-add:hover{ background: var(--accent-soft); filter: brightness(0.97); }
+
+  /* ---- quick totals mode ---- */
+  .quick-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 480px;
+  }
+  .field label{
+    display:block;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .field input{ font-size: 20px; padding: 12px 12px; }
+
+  /* ---- calculate row ---- */
+  .action-row{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line-soft);
+    flex-wrap: wrap;
+  }
+  .btn-calc{
+    background: var(--indigo);
+    color: #fff;
+    border-color: var(--indigo);
+    font-size: 14.5px;
+    padding: 11px 22px;
+    box-shadow: 0 6px 16px -8px hsl(var(--shadow) / 0.45);
+  }
+  .btn-calc:hover{ filter: brightness(1.08); }
+  .error-note{
+    color: var(--bad);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ============ RESULT PANEL ============ */
+  .result-panel{
+    position: sticky;
+    top: 20px;
+  }
+  .format-tabs{
+    display:flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .format-tabs .row1{
+    display:flex;
+    background: var(--line-soft);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .format-tabs .row1 button{
+    flex:1;
+    border:0;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 8px 6px;
+    border-radius: 8px;
+    cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .format-tabs .row1 button.active{
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 2px hsl(var(--shadow) / 0.15);
+  }
+
+  .gpa-sub{
+    display:flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    align-items:center;
+  }
+  .gpa-sub button{
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 11px;
+    border-radius: 20px;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .gpa-sub button.active{
+    border-color: var(--indigo);
+    background: var(--indigo-soft);
+    color: var(--indigo);
+  }
+  .gpa-sub .custom-scale{
+    display:none;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    color: var(--ink-soft);
+  }
+  .gpa-sub .custom-scale.show{ display:flex; }
+  .gpa-sub .custom-scale input{
+    width: 60px;
+    padding: 5px 7px;
+    font-size:12.5px;
+  }
+
+  .result-stage{
+    margin-top: 22px;
+    text-align:center;
+    padding: 22px 10px 6px;
+  }
+  .result-stage .score{
+    font-family:"Fraunces", serif;
+    font-weight: 700;
+    font-size: clamp(52px, 8vw, 68px);
+    line-height:1;
+    letter-spacing:-0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-stage .score .unit{
+    font-size: 0.34em;
+    font-weight:600;
+    color: var(--ink-faint);
+    margin-left: 4px;
+    font-family: "Public Sans", sans-serif;
+  }
+  .result-stage .score.tone-good{ color: var(--good); }
+  .result-stage .score.tone-warn{ color: var(--warn); }
+  .result-stage .score.tone-bad{ color: var(--bad); }
+  .result-stage .score.tone-neutral{ color: var(--ink-faint); }
+
+  .grade-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top: 10px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .grade-chip.tone-good{ background: var(--good-soft); color: var(--good); }
+  .grade-chip.tone-warn{ background: var(--warn-soft); color: var(--warn); }
+  .grade-chip.tone-bad{ background: var(--bad-soft); color: var(--bad); }
+  .grade-chip.tone-neutral{ background: var(--line-soft); color: var(--ink-faint); }
+
+  .result-meta{
+    margin-top: 18px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .result-meta .stat{
+    text-align:left;
+  }
+  .result-meta .stat .k{
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    font-weight:700;
+    display:block;
+    margin-bottom:2px;
+  }
+  .result-meta .stat .v{
+    font-size: 15px;
+    font-weight: 600;
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .scale-note{
+    margin-top: 16px;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .placeholder-hint{
+    text-align:center;
+    color: var(--ink-faint);
+    font-size: 13px;
+    padding: 30px 12px 10px;
+  }
+
+  /* ============ FOOTER ============ */
+  footer.site{
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  footer.site .tagline{
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  footer.site .credit{
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  footer.site .credit b{ color: var(--ink-soft); }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">Σ</span>
+      <div>
+        <span class="kicker">Report Card Utility</span>
+        <h1>Gradebook</h1>
+      </div>
+    </div>
+    <p class="sub">Enter marks subject-by-subject, or drop in two totals — get percentage, GPA, or a letter grade instantly.</p>
+  </header>
+
+  <div class="layout">
+
+    <!-- ============ INPUT PANEL ============ -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Marks entry</h2>
+        <div class="segmented" role="tablist" aria-label="Entry mode">
+          <button type="button" id="mode-subjects" class="active" role="tab" aria-selected="true">Subject-wise</button>
+          <button type="button" id="mode-quick" role="tab" aria-selected="false">Quick totals</button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- SUBJECT-WISE MODE -->
+        <div id="panel-subjects">
+
+          <div class="same-mm-row">
+            <label class="chk">
+              <input type="checkbox" id="same-mm-toggle">
+              Same max marks for every subject
+            </label>
+            <div class="mm-global">
+              <label for="mm-global-input">Max marks</label>
+              <input type="number" id="mm-global-input" class="mm-global-input" min="0" step="0.5" placeholder="100" disabled>
+            </div>
+          </div>
+
+          <table class="subjects">
+            <thead>
+              <tr>
+                <th class="idx-col">#</th>
+                <th>Subject</th>
+                <th class="num-col">Obtained</th>
+                <th class="num-col">Max marks</th>
+                <th class="num-col">%</th>
+                <th class="del-cell" aria-hidden="true"></th>
+              </tr>
+            </thead>
+            <tbody id="subject-rows"></tbody>
+          </table>
+
+          <div class="table-actions">
+            <button type="button" class="btn btn-add" id="add-row">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add subject
+            </button>
+            <span id="subject-total-hint" class="scale-note" style="border:0; margin:0; padding:0;"></span>
+          </div>
+        </div>
+
+        <!-- QUICK TOTALS MODE -->
+        <div id="panel-quick" style="display:none;">
+          <div class="quick-grid">
+            <div class="field">
+              <label for="quick-obtained">Total marks obtained</label>
+              <input type="number" id="quick-obtained" min="0" step="0.5" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="quick-max">Total maximum marks</label>
+              <input type="number" id="quick-max" min="0" step="0.5" placeholder="0">
+            </div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="btn btn-calc" id="calculate-btn">Calculate</button>
+          <button type="button" class="btn btn-ghost" id="reset-btn">Reset all fields</button>
+          <span class="error-note" id="error-note" style="display:none;"></span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ RESULT PANEL ============ -->
+    <aside class="panel result-panel">
+      <div class="panel-head">
+        <h2>Result format</h2>
+      </div>
+      <div class="panel-body">
+
+        <div class="format-tabs">
+          <div class="row1" role="tablist" aria-label="Output format">
+            <button type="button" class="fmt-btn active" data-fmt="percentage">Percentage</button>
+            <button type="button" class="fmt-btn" data-fmt="gpa">GPA</button>
+            <button type="button" class="fmt-btn" data-fmt="grade">Letter grade</button>
+          </div>
+
+          <div class="gpa-sub" id="gpa-sub" style="display:none;">
+            <button type="button" class="gpa-scale-btn active" data-scale="10">Scale of 10</button>
+            <button type="button" class="gpa-scale-btn" data-scale="5">Scale of 5</button>
+            <button type="button" class="gpa-scale-btn" data-scale="custom">Custom</button>
+            <span class="custom-scale" id="custom-scale-wrap">
+              <span>Max</span>
+              <input type="number" id="custom-scale-input" min="1" step="0.5" value="4">
+            </span>
+          </div>
+        </div>
+
+        <div class="result-stage" id="result-stage">
+          <div class="placeholder-hint" id="result-placeholder">Fill in your marks and press Calculate to see your score here.</div>
+          <div id="result-content" style="display:none;">
+            <div class="score tone-neutral" id="score-value">—</div>
+            <div class="grade-chip tone-neutral" id="grade-chip" style="display:none;"></div>
+            <div class="result-meta">
+              <div class="stat">
+                <span class="k">Percentage</span>
+                <span class="v num" id="meta-percentage">—</span>
+              </div>
+              <div class="stat">
+                <span class="k">Total</span>
+                <span class="v num" id="meta-total">—</span>
+              </div>
+            </div>
+            <div class="scale-note" id="scale-note" style="display:none;"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="site">
+    <span class="tagline">Marks in, mediocrity out — grades that don't need a calculator app of their own.</span>
+    <span class="credit">Built with care by <b>Arya</b></span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var subjectRowsEl = document.getElementById('subject-rows');
+  var rowCount = 0;
+  var rowIdSeq = 0;
+
+  function makeRow(prefillName){
+    rowIdSeq++;
+    var id = rowIdSeq;
+    var tr = document.createElement('tr');
+    tr.dataset.rowId = id;
+    tr.innerHTML =
+      '<td class="idx"></td>' +
+      '<td class="name-cell"><input type="text" class="subj-name" placeholder="Subject ' + (rowCount+1) + '"></td>' +
+      '<td class="mark-cell"><input type="number" class="subj-obtained" min="0" step="0.5" placeholder="0"></td>' +
+      '<td class="mm-cell"><input type="number" class="subj-mm" min="0" step="0.5" placeholder="100"></td>' +
+      '<td class="row-pct">—</td>' +
+      '<td class="del-cell"><button type="button" class="icon-btn del-row" aria-label="Remove subject"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></td>';
+    return tr;
+  }
+
+  function reindexRows(){
+    var rows = subjectRowsEl.querySelectorAll('tr');
+    rowCount = rows.length;
+    rows.forEach(function(r, i){
+      r.querySelector('.idx').textContent = i + 1;
+    });
+    document.getElementById('add-row').disabled = false;
+  }
+
+  function addRow(){
+    var tr = makeRow();
+    subjectRowsEl.appendChild(tr);
+    reindexRows();
+    syncSameMM();
+    updateRowPercent(tr);
+    var nameInput = tr.querySelector('.subj-name');
+    nameInput.focus();
+  }
+
+  subjectRowsEl.addEventListener('click', function(e){
+    var delBtn = e.target.closest('.del-row');
+    if(delBtn){
+      var tr = delBtn.closest('tr');
+      tr.remove();
+      reindexRows();
+      if(subjectRowsEl.children.length === 0){ addRow(); }
+      updateSubjectHint();
+    }
+  });
+
+  subjectRowsEl.addEventListener('input', function(e){
+    var tr = e.target.closest('tr');
+    if(!tr) return;
+    if(e.target.classList.contains('subj-obtained') || e.target.classList.contains('subj-mm')){
+      updateRowPercent(tr);
+      updateSubjectHint();
+      clearRowError(e.target);
+    }
+  });
+
+  function clearRowError(el){ el.classList.remove('error'); }
+
+  function updateRowPercent(tr){
+    var obtained = parseFloat(tr.querySelector('.subj-obtained').value);
+    var mm = parseFloat(tr.querySelector('.subj-mm').value);
+    var cell = tr.querySelector('.row-pct');
+    if(isFinite(obtained) && isFinite(mm) && mm > 0){
+      var pct = (obtained / mm) * 100;
+      cell.textContent = (Math.round(pct * 10) / 10) + '%';
+      cell.classList.toggle('bad', obtained > mm);
+    } else {
+      cell.textContent = '—';
+      cell.classList.remove('bad');
+    }
+  }
+
+  function updateSubjectHint(){
+    var rows = subjectRowsEl.querySelectorAll('tr');
+    var totalObtained = 0, totalMax = 0, filled = 0;
+    rows.forEach(function(tr){
+      var obtained = parseFloat(tr.querySelector('.subj-obtained').value);
+      var mm = parseFloat(tr.querySelector('.subj-mm').value);
+      if(isFinite(obtained) && isFinite(mm) && mm > 0){
+        totalObtained += obtained; totalMax += mm; filled++;
+      }
+    });
+    var hint = document.getElementById('subject-total-hint');
+    if(filled > 0){
+      hint.textContent = filled + ' of ' + rows.length + ' subject' + (rows.length===1?'':'s') + ' filled · running total ' + trimNum(totalObtained) + ' / ' + trimNum(totalMax);
+    } else {
+      hint.textContent = '';
+    }
+  }
+
+  // ---- same max-marks-for-all toggle ----
+  var sameMMToggle = document.getElementById('same-mm-toggle');
+  var mmGlobalInput = document.getElementById('mm-global-input');
+
+  function syncSameMM(){
+    var on = sameMMToggle.checked;
+    mmGlobalInput.disabled = !on;
+    var rows = subjectRowsEl.querySelectorAll('tr');
+    rows.forEach(function(tr){
+      var mmInput = tr.querySelector('.subj-mm');
+      mmInput.disabled = on;
+      if(on){
+        mmInput.value = mmGlobalInput.value;
+        updateRowPercent(tr);
+      }
+    });
+    updateSubjectHint();
+  }
+
+  sameMMToggle.addEventListener('change', syncSameMM);
+  mmGlobalInput.addEventListener('input', syncSameMM);
+
+  document.getElementById('add-row').addEventListener('click', addRow);
+
+  // seed with three rows
+  addRow(); addRow(); addRow();
+
+  // ---- mode switch ----
+  var modeSubjectsBtn = document.getElementById('mode-subjects');
+  var modeQuickBtn = document.getElementById('mode-quick');
+  var panelSubjects = document.getElementById('panel-subjects');
+  var panelQuick = document.getElementById('panel-quick');
+
+  function setMode(mode){
+    var isSubjects = mode === 'subjects';
+    modeSubjectsBtn.classList.toggle('active', isSubjects);
+    modeSubjectsBtn.setAttribute('aria-selected', isSubjects);
+    modeQuickBtn.classList.toggle('active', !isSubjects);
+    modeQuickBtn.setAttribute('aria-selected', !isSubjects);
+    panelSubjects.style.display = isSubjects ? '' : 'none';
+    panelQuick.style.display = isSubjects ? 'none' : '';
+    hideResult();
+  }
+  modeSubjectsBtn.addEventListener('click', function(){ setMode('subjects'); });
+  modeQuickBtn.addEventListener('click', function(){ setMode('quick'); });
+
+  // ---- format tabs ----
+  var fmtBtns = Array.prototype.slice.call(document.querySelectorAll('.fmt-btn'));
+  var currentFmt = 'percentage';
+  var gpaSub = document.getElementById('gpa-sub');
+
+  fmtBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      fmtBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFmt = btn.dataset.fmt;
+      gpaSub.style.display = currentFmt === 'gpa' ? 'flex' : 'none';
+      hideResult();
+    });
+  });
+
+  var gpaScaleBtns = Array.prototype.slice.call(document.querySelectorAll('.gpa-scale-btn'));
+  var currentGpaScale = '10';
+  var customScaleWrap = document.getElementById('custom-scale-wrap');
+  var customScaleInput = document.getElementById('custom-scale-input');
+
+  gpaScaleBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gpaScaleBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentGpaScale = btn.dataset.scale;
+      customScaleWrap.classList.toggle('show', currentGpaScale === 'custom');
+      hideResult();
+    });
+  });
+  customScaleInput.addEventListener('input', hideResult);
+
+  function gpaScaleValue(){
+    if(currentGpaScale === '10') return 10;
+    if(currentGpaScale === '5') return 5;
+    var v = parseFloat(customScaleInput.value);
+    return isFinite(v) && v > 0 ? v : 4;
+  }
+
+  // ---- reset ----
+  document.getElementById('reset-btn').addEventListener('click', function(){
+    // clear subject rows down to 3 blank rows
+    subjectRowsEl.innerHTML = '';
+    rowCount = 0;
+    addRow(); addRow(); addRow();
+    sameMMToggle.checked = false;
+    mmGlobalInput.value = '';
+    syncSameMM();
+    updateSubjectHint();
+
+    document.getElementById('quick-obtained').value = '';
+    document.getElementById('quick-max').value = '';
+
+    document.querySelectorAll('input.error').forEach(function(el){ el.classList.remove('error'); });
+    showError('');
+    hideResult();
+  });
+
+  // ---- error display ----
+  function showError(msg){
+    var el = document.getElementById('error-note');
+    if(msg){ el.textContent = msg; el.style.display = ''; }
+    else { el.style.display = 'none'; el.textContent = ''; }
+  }
+
+  // ---- gather totals ----
+  function gatherTotals(){
+    showError('');
+    document.querySelectorAll('input.error').forEach(function(el){ el.classList.remove('error'); });
+
+    var isSubjects = panelSubjects.style.display !== 'none';
+
+    if(isSubjects){
+      var rows = subjectRowsEl.querySelectorAll('tr');
+      var totalObtained = 0, totalMax = 0, anyFilled = false, bad = false;
+
+      rows.forEach(function(tr){
+        var obtainedInput = tr.querySelector('.subj-obtained');
+        var mmInput = tr.querySelector('.subj-mm');
+        var oRaw = obtainedInput.value.trim();
+        var mRaw = mmInput.value.trim();
+
+        if(oRaw === '' && mRaw === ''){ return; }
+
+        var o = parseFloat(oRaw);
+        var m = parseFloat(mRaw);
+
+        if(oRaw === '' || !isFinite(o) || o < 0){
+          obtainedInput.classList.add('error'); bad = true; return;
+        }
+        if(mRaw === '' || !isFinite(m) || m <= 0){
+          mmInput.classList.add('error'); bad = true; return;
+        }
+        if(o > m){
+          obtainedInput.classList.add('error'); bad = true; return;
+        }
+        totalObtained += o;
+        totalMax += m;
+        anyFilled = true;
+      });
+
+      if(bad){ showError('Check the highlighted marks — obtained can\'t exceed max, and max must be greater than 0.'); return null; }
+      if(!anyFilled){ showError('Enter marks for at least one subject.'); return null; }
+
+      return { obtained: totalObtained, max: totalMax };
+
+    } else {
+      var qo = document.getElementById('quick-obtained');
+      var qm = document.getElementById('quick-max');
+      var o = parseFloat(qo.value);
+      var m = parseFloat(qm.value);
+
+      if(qo.value.trim() === '' || !isFinite(o) || o < 0){ qo.classList.add('error'); showError('Enter a valid total marks obtained.'); return null; }
+      if(qm.value.trim() === '' || !isFinite(m) || m <= 0){ qm.classList.add('error'); showError('Enter a valid total maximum marks (greater than 0).'); return null; }
+      if(o > m){ qo.classList.add('error'); showError('Total obtained can\'t exceed total maximum marks.'); return null; }
+
+      return { obtained: o, max: m };
+    }
+  }
+
+  // ---- grade table ----
+  var GRADE_TABLE = [
+    { min: 90, label: 'A+', tone: 'good' },
+    { min: 80, label: 'A',  tone: 'good' },
+    { min: 70, label: 'B+', tone: 'good' },
+    { min: 60, label: 'B',  tone: 'warn' },
+    { min: 50, label: 'C+', tone: 'warn' },
+    { min: 40, label: 'C',  tone: 'warn' },
+    { min: 33, label: 'D',  tone: 'bad'  },
+    { min: 0,  label: 'F',  tone: 'bad'  }
+  ];
+  function letterGrade(pct){
+    for(var i=0;i<GRADE_TABLE.length;i++){
+      if(pct >= GRADE_TABLE[i].min) return GRADE_TABLE[i];
+    }
+    return GRADE_TABLE[GRADE_TABLE.length-1];
+  }
+  function toneForPct(pct){
+    if(pct >= 75) return 'good';
+    if(pct >= 40) return 'warn';
+    return 'bad';
+  }
+
+  function trimNum(n){
+    var r = Math.round(n * 100) / 100;
+    return (r % 1 === 0) ? String(r) : String(r);
+  }
+
+  // ---- render result ----
+  var resultPlaceholder = document.getElementById('result-placeholder');
+  var resultContent = document.getElementById('result-content');
+  var scoreValue = document.getElementById('score-value');
+  var gradeChip = document.getElementById('grade-chip');
+  var metaPercentage = document.getElementById('meta-percentage');
+  var metaTotal = document.getElementById('meta-total');
+  var scaleNote = document.getElementById('scale-note');
+
+  function hideResult(){
+    resultPlaceholder.style.display = '';
+    resultContent.style.display = 'none';
+  }
+
+  function renderResult(totals){
+    var pct = (totals.obtained / totals.max) * 100;
+    var tone = toneForPct(pct);
+
+    resultPlaceholder.style.display = 'none';
+    resultContent.style.display = '';
+
+    metaPercentage.textContent = trimNum(pct) + '%';
+    metaTotal.textContent = trimNum(totals.obtained) + ' / ' + trimNum(totals.max);
+
+    scoreValue.className = 'score tone-' + tone;
+    gradeChip.style.display = 'none';
+    scaleNote.style.display = 'none';
+
+    if(currentFmt === 'percentage'){
+      scoreValue.innerHTML = trimNum(pct) + '<span class="unit">%</span>';
+    } else if(currentFmt === 'gpa'){
+      var scale = gpaScaleValue();
+      var gpa = (pct / 100) * scale;
+      scoreValue.innerHTML = trimNum(gpa) + '<span class="unit">/ ' + trimNum(scale) + '</span>';
+      scaleNote.style.display = '';
+      scaleNote.textContent = 'GPA calculated proportionally from percentage: (percentage ÷ 100) × ' + trimNum(scale) + '.';
+    } else if(currentFmt === 'grade'){
+      var g = letterGrade(pct);
+      scoreValue.className = 'score tone-' + g.tone;
+      scoreValue.textContent = g.label;
+      gradeChip.style.display = '';
+      gradeChip.className = 'grade-chip tone-' + g.tone;
+      gradeChip.textContent = pct >= 33 ? 'Passing' : 'Below passing';
+    }
+  }
+
+  document.getElementById('calculate-btn').addEventListener('click', function(){
+    var totals = gatherTotals();
+    if(!totals) { hideResult(); return; }
+    renderResult(totals);
+  });
+
+  // initial hint
+  updateSubjectHint();
+})();
+</script>
