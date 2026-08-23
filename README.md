@@ -2,7 +2,7 @@
 
 A clean, single-page grade calculator — enter marks subject-by-subject or as quick totals, and get your **percentage**, **GPA**, or **letter grade** instantly.
 
-**Live demo:** _add your Vercel URL here after deploying_
+**Live demo:** [gradebook-live.vercel.app](https://gradebook-live.vercel.app/)
 
 ## Features
 
@@ -34,4 +34,4 @@ This is a static site, so it deploys anywhere with zero configuration:
 
 ## License
 
-MIT © Arya
+MIT © Bhavini Awasthi

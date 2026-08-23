@@ -6,6 +6,6 @@
   "scripts": {
     "start": "npx serve ."
   },
-  "author": "Arya",
+  "author": "Bhavini Awasthi",
   "license": "MIT"
 }
